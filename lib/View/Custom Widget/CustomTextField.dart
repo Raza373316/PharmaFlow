@@ -1,0 +1,107 @@
+import 'package:flutter/material.dart';
+
+class CustomTextField extends StatefulWidget {
+  final TextEditingController controller;
+  final String hintText;
+  final String? labelText;
+  final IconData? prefixIcon;
+  final bool isPassword;
+  final TextInputType keyboardType;
+  final String? Function(String?)? validator;
+  final VoidCallback? onTap;
+  final bool readOnly;
+  final int maxLines;
+
+  const CustomTextField({
+    super.key,
+    required this.controller,
+    required this.hintText,
+    this.labelText,
+    this.prefixIcon,
+    this.isPassword = false,
+    this.keyboardType = TextInputType.text,
+    this.validator,
+    this.onTap,
+    this.readOnly = false,
+    this.maxLines = 1,
+  });
+
+  @override
+  State<CustomTextField> createState() => _CustomTextFieldState();
+}
+
+class _CustomTextFieldState extends State<CustomTextField> {
+  bool isObscure = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: widget.controller,
+      obscureText: widget.isPassword ? isObscure : false,
+      keyboardType: widget.keyboardType,
+      validator: widget.validator,
+      onTap: widget.onTap,
+      readOnly: widget.readOnly,
+      maxLines: widget.maxLines,
+      decoration: InputDecoration(
+        hintText: widget.hintText,
+        labelText: widget.labelText,
+
+        prefixIcon: widget.prefixIcon != null
+            ? Icon(widget.prefixIcon)
+            : null,
+
+        suffixIcon: widget.isPassword
+            ? IconButton(
+          onPressed: () {
+            setState(() {
+              isObscure = !isObscure;
+            });
+          },
+          icon: Icon(
+            isObscure
+                ? Icons.visibility_off
+                : Icons.visibility,
+          ),
+        )
+            : null,
+
+        filled: true,
+        fillColor: Colors.grey.shade100,
+
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 18,
+        ),
+
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
+        ),
+
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(
+            color: Colors.grey.shade300,
+          ),
+        ),
+
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(
+            color: Colors.blue,
+            width: 2,
+          ),
+        ),
+
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(
+            color: Colors.red,
+            width: 1.5,
+          ),
+        ),
+      ),
+    );
+  }
+}
