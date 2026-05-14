@@ -18,7 +18,8 @@ class _LoginscreenState extends State<Loginscreen> {
       body: Column(
         children: [
           Text("Login"),
-       CustomTextField(controller: email, hintText: "Email")
+       CustomTextField(controller: email, hintText: "Email"),
+           CustomTextField(controller: password, hintText: 'password')
         ],
       ),
     );
