@@ -17,6 +17,7 @@ class _LoginscreenState extends State<Loginscreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.lightBlue.shade300,
       body: Padding(
         padding: const EdgeInsets.all(10),
         child: Column(
@@ -44,15 +45,15 @@ class _LoginscreenState extends State<Loginscreen> {
             ),
             SizedBox(height: 5,),
 
-            InkWell(
-              child: Align(
-                alignment: Alignment.bottomRight,
+            Align(
+              alignment: Alignment.bottomRight,
+              child: InkWell(
+                onTap: () {},
                 child: CustomText(
                   text: "ForgetPassword",
                   color: Colors.blueAccent,
                 ),
               ),
-              onTap: () {},
             ),
             SizedBox(height: 25),
             CustomButton(
