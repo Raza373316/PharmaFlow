@@ -4,6 +4,7 @@ class CustomTextField extends StatefulWidget {
   final TextEditingController controller;
   final String hintText;
   final String? labelText;
+  final Color ?backgroundcolor;
   final IconData? prefixIcon;
   final bool isPassword;
   final TextInputType keyboardType;
@@ -16,6 +17,7 @@ class CustomTextField extends StatefulWidget {
     super.key,
     required this.controller,
     required this.hintText,
+     this.backgroundcolor,
     this.labelText,
     this.prefixIcon,
     this.isPassword = false,
@@ -67,7 +69,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
             : null,
 
         filled: true,
-        fillColor: Colors.grey.shade100,
+        fillColor: widget.backgroundcolor==null?  Colors.grey.shade100 :widget.backgroundcolor,
 
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,

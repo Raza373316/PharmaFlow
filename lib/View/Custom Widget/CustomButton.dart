@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;
+  final double ?fontsize;
   final VoidCallback onPressed;
   final bool isLoading;
   final Color backgroundColor;
@@ -22,6 +23,7 @@ class CustomButton extends StatelessWidget {
     this.height = 55,
     this.width = double.infinity,
     this.icon,
+    this.fontsize=16,
   });
 
   @override
@@ -53,7 +55,7 @@ class CustomButton extends StatelessWidget {
               text,
               style: TextStyle(
                 color: textColor,
-                fontSize: 16,
+                fontSize: fontsize,
                 fontWeight: FontWeight.bold,
               ),
             ),
