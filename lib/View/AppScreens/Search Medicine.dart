@@ -83,13 +83,13 @@ class _SearchmedicineState extends State<Searchmedicine> {
               child: ListView(
                 children: [
                   Medicinesearchcard(price: 100, Name: 'Panadol', ExpiryDate: '10/12/21', Stock: 7,
-                    Status: 'pending',),
+                    Status: 'Low Stock',),
                   Medicinesearchcard(price: 100, Name: 'Agmintan', ExpiryDate: '10/12/21', Stock: 7,
                     Status: 'Expiry',),
                   Medicinesearchcard(price: 100, Name: 'Panadol', ExpiryDate: '10/12/21', Stock: 7,
-                    Status: 'pending',),
+                    Status: 'Low Stock',),
                   Medicinesearchcard(price: 100, Name: 'Panadol', ExpiryDate: '10/12/21', Stock: 7,
-                    Status: 'pending',),
+                    Status: 'Avaible',),
                 ],
               ),
             )
