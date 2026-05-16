@@ -39,20 +39,35 @@ margin: EdgeInsetsGeometry.all(5),
         ],
 
       ),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      child: Row(
 
-      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CustomText(text: "Name",color: Colors.blueAccent,),
-          SizedBox(width: 30,),
-          CustomText(text: widget.Name),
-          Spacer(),
+          Column(crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CustomText(text: "Name",color: Colors.blueAccent,),
+              CustomText(text: "Price",color: Colors.blueAccent,),
+              CustomText(text: "Stock",color: Colors.blueAccent,),
+              CustomText(text: "Expiry",color: Colors.blueAccent,),
+
+            ],
+          ),
+          SizedBox(width: 20,),
+          Column(crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CustomText(text: widget.Name),
+              CustomText(text: widget.price.toString()),
+              CustomText(text: widget.Stock.toString()),
+              CustomText(text: widget.ExpiryDate),
+
+            ],
+          ),
+Spacer(),
           Container(
             padding: EdgeInsets.all(6),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: widget.Status == 'pending'
+              color: widget.Status == 'Low Stock'
                   ? Colors.orange
                   : widget.Status == 'Expiry'
                   ? Colors.red
@@ -61,23 +76,10 @@ margin: EdgeInsetsGeometry.all(5),
             child: CustomText(text: widget.Status, fontSize: 10),
           ),
 
-        ],
-      ),
 
 
-         Row(
-           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-           children: [
 
-             CustomText(text: "Price",color: Colors.blueAccent,),
-             CustomText(text: widget.price.toString()),
 
-             CustomText(text: "Stock",color: Colors.blueAccent,),
-             CustomText(text: widget.Stock.toString()),
-           ],
-         ),
-          CustomText(text: "Expiry",color: Colors.blueAccent,),
-          CustomText(text: widget.ExpiryDate),
 
         ],
       ),
