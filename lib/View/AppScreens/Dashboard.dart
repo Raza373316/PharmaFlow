@@ -18,7 +18,7 @@ class _DashboardState extends State<Dashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: CustomText(text: "PharmaFlow",fontWeight: FontWeight.bold,),
+        title: CustomText(text: "PharmaFlow",color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
         backgroundColor: Colors.blue,
       ),
       backgroundColor: Colors.lightBlue.shade300,
