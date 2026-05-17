@@ -25,7 +25,8 @@ class _SearchmedicineState extends State<Searchmedicine> {
     return Scaffold(
 
       appBar: AppBar(
-        title: CustomText(text: "Search Medicine",),
+        title: CustomText(text: "Search Medicine",
+            color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
         backgroundColor: Colors.blue,
       ),
       backgroundColor: Colors.lightBlue.shade300,
@@ -47,13 +48,13 @@ class _SearchmedicineState extends State<Searchmedicine> {
                   return Padding(
                     padding: EdgeInsets.only(right: 3),
                     child: FilterChip(
-                      label:Text(filter['label'],
-                        style: TextStyle(
+                      label:CustomText(text: filter['label'],
+
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                             color:Colors.black
 
-                        ),
+
                       ),
 
 
