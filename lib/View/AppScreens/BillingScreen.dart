@@ -90,6 +90,8 @@ class _BillingscreenState extends State<Billingscreen> {
     {"name": "Calpol", "stock": 9, "price": 170},
     {"name": "Aspirin", "stock": 45, "price": 80},
     {"name": "Ibuprofen", "stock": 20, "price": 120},
+    {"name": "Alp", "stock": 210, "price": 190},
+    {"name": "Spirit", "stock": 10, "price": 20},
   ];
 
   // Cart items list
