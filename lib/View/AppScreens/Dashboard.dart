@@ -22,6 +22,9 @@ class _DashboardState extends State<Dashboard> {
         backgroundColor: Colors.blue,
       ),
       backgroundColor: Colors.lightBlue.shade300,
+      drawer: Drawer(
+
+      ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
