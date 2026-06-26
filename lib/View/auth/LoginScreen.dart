@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pharmacymanagement/View/AppScreens/MainScreenNavigation.dart';
 import 'package:pharmacymanagement/View/Custom%20Widget/CustomButton.dart';
 import 'package:pharmacymanagement/View/Custom%20Widget/CustomTextField.dart';
 
@@ -58,14 +59,18 @@ class _LoginscreenState extends State<Loginscreen> {
             SizedBox(height: 25),
             CustomButton(
               text: "Sign In",
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>MainNavigationScreen()));
+              },
               icon: Icons.assignment_turned_in_outlined,
             ),
             SizedBox(height: 10,),
             Divider(),
             SizedBox(height: 10,),
             CustomButton(text: "Google Sign in", onPressed: (){},backgroundColor:Colors.black45,icon: Icons.assignment_turned_in_outlined)
+
           ],
+
         )
       ),
     );
