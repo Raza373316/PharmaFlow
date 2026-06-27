@@ -1,21 +1,27 @@
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pharmacymanagement/View/AppScreens/Addmedicine.dart';
 import 'package:pharmacymanagement/View/AppScreens/BillingScreen.dart';
 import 'package:pharmacymanagement/View/AppScreens/Search%20Medicine.dart';
 import 'package:pharmacymanagement/View/AppScreens/reports_screen.dart';
 
+import '../../Provider/UserProvider.dart';
+import '../../Provider/authProvider.dart';
+import '../auth/LoginScreen.dart';
 import 'Dashboard.dart';
 
-class MainNavigationScreen extends StatefulWidget {
+class MainNavigationScreen extends ConsumerStatefulWidget {
   const MainNavigationScreen({super.key});
 
+
   @override
-  State<MainNavigationScreen> createState() => _MainNavigationScreenState();
+  ConsumerState<MainNavigationScreen> createState() => _MainNavigationScreenState();
 }
 
-class _MainNavigationScreenState extends State<MainNavigationScreen> {
+class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   int _selectedIndex = 0;
 
   // List of screens
@@ -27,6 +33,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     ReportsScreen(),
   ];
 
+
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -35,8 +43,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: _screens.elementAt(_selectedIndex),
+
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
