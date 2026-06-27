@@ -1,30 +1,108 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pharmacymanagement/View/Custom%20Widget/CustomButton.dart';
 import 'package:pharmacymanagement/View/Custom%20Widget/CustomText.dart';
 import 'package:pharmacymanagement/View/auth/LoginScreen.dart';
 
+import '../../Provider/UserProvider.dart';
+import '../../Provider/authProvider.dart';
 import '../Custom Widget/CustomTextField.dart';
 
-class Dashboard extends StatefulWidget {
+class Dashboard extends ConsumerStatefulWidget {
   const Dashboard({super.key});
 
   @override
-  State<Dashboard> createState() => _DashboardState();
+  ConsumerState<Dashboard> createState() => _DashboardState();
 }
 
-class _DashboardState extends State<Dashboard> {
+class _DashboardState extends ConsumerState<Dashboard> {
   TextEditingController search = TextEditingController();
+
+  void initState() {
+    super.initState();
+
+    Future.microtask(() {
+      final uid = FirebaseAuth.instance.currentUser!.uid;
+
+      ref.read(userProvider.notifier).fetchUser(uid);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final userState = ref.watch(userProvider);
     return Scaffold(
+
       appBar: AppBar(
         title: CustomText(text: "PharmaFlow",color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
         backgroundColor: Colors.blue,
       ),
-      backgroundColor: Colors.lightBlue.shade300,
       drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
 
+            UserAccountsDrawerHeader(
+              accountName: Text(
+                userState.user?.name ?? "Loading...",
+              ),
+
+              accountEmail: Text(
+                userState.user?.email ?? "",
+              ),
+
+              currentAccountPicture: const CircleAvatar(
+                child: Icon(
+                  Icons.person,
+                  size: 40,
+                ),
+              ),
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text("Dashboard"),
+              onTap: () {},
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.medication),
+              title: const Text("Medicines"),
+              onTap: () {},
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.shopping_cart),
+              title: const Text("Sales"),
+              onTap: () {},
+            ),
+
+            const Divider(),
+
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text("Logout"),
+              onTap: () async {
+
+                await ref.read(authProvider.notifier).logout();
+
+                if (!context.mounted) return;
+
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const Loginscreen(),
+                  ),
+                      (route) => false,
+                );
+              },
+            ),
+          ],
+        ),
       ),
+      backgroundColor: Colors.lightBlue.shade300,
+
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
