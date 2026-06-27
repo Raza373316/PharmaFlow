@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "778114657422",
+    "project_id": "pharmflow-8cc91",
+    "storage_bucket": "pharmflow-8cc91.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:778114657422:android:ea876fb4481b4cb32c6ddf",
+        "android_client_info": {
+          "package_name": "com.PharmacyManagement"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaDTcs7Mlbh90NlD-vyiXtdRXY3ScHL0k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:778114657422:android:f46e050fc72207cc2c6ddf",
+        "android_client_info": {
+          "package_name": "com.example.pharmacymanagement"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaDTcs7Mlbh90NlD-vyiXtdRXY3ScHL0k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
