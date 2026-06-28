@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pharmacymanagement/View/AppScreens/MainScreenNavigation.dart';
 import 'package:pharmacymanagement/View/Custom%20Widget/CustomButton.dart';
 import 'package:pharmacymanagement/View/Custom%20Widget/CustomText.dart';
 import 'package:pharmacymanagement/View/auth/LoginScreen.dart';
@@ -172,7 +173,9 @@ class _DashboardState extends ConsumerState<Dashboard> {
                     text: "Add Medicne",
                     icon: Icons.medication,height: 40,
                     fontsize: 12,
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>MainNavigationScreen(initialIndex: 2,)));
+                    },
                   ),
                 ),
                 SizedBox(width: 5),
@@ -182,7 +185,10 @@ class _DashboardState extends ConsumerState<Dashboard> {
                     height: 40,
                     icon: Icons.receipt_long,
                     fontsize: 12,
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>MainNavigationScreen(initialIndex: 3,)));
+
+                    },
                   ),
                 ),
               ],
