@@ -125,16 +125,23 @@ class _SearchmedicineState extends ConsumerState<Searchmedicine> {
                       child: Text("No medicines found"),
                     );
                   }
-                  // final filteredMedicines = medicineList.where((medicine) {
-                  //   return medicine.name
-                  //       .toLowerCase()
-                  //       .contains(searchText);
-                  // }).toList();
+
+                  final query = search.text.toLowerCase();
+
                   List filteredMedicines = medicineList.where((medicine) {
-                    return medicine.name
-                        .toLowerCase()
-                        .contains(searchText);
+                    return medicine.stock > 0 &&
+                        medicine.name.toLowerCase().contains(query);
                   }).toList();
+
+                  filteredMedicines.sort((a, b) {
+                    final aStarts = a.name.toLowerCase().startsWith(query);
+                    final bStarts = b.name.toLowerCase().startsWith(query);
+
+                    if (aStarts && !bStarts) return -1;
+                    if (!aStarts && bStarts) return 1;
+
+                    return a.name.compareTo(b.name);
+                  });
 
 // Low Stock Filter
                   if (Selected == "Low Stocks") {
