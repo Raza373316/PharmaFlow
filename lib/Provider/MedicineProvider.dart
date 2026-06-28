@@ -26,6 +26,17 @@ class MedicineNotifier extends StateNotifier<MedicineState> {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
+  /////////////////
+  Stream<List<MedicineModel>> medicineStream() {
+    return _firestore
+        .collection("medicines")
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return MedicineModel.fromMap(doc.data());
+      }).toList();
+    });
+  }
 
   // FETCH MEDICINES (REAL TIME)
   Stream<List<MedicineModel>> getMedicines() {
@@ -35,6 +46,7 @@ class MedicineNotifier extends StateNotifier<MedicineState> {
           .toList();
     });
   }
+
 
   // DELETE MEDICINE
   Future<void> deleteMedicine(String id) async {
@@ -46,3 +58,7 @@ final medicineProvider =
 StateNotifierProvider<MedicineNotifier, MedicineState>(
       (ref) => MedicineNotifier(),
 );
+final medicineStreamProvider =
+StreamProvider<List<MedicineModel>>((ref) {
+  return ref.read(medicineProvider.notifier).medicineStream();
+});
