@@ -14,7 +14,10 @@ import '../auth/LoginScreen.dart';
 import 'Dashboard.dart';
 
 class MainNavigationScreen extends ConsumerStatefulWidget {
-  const MainNavigationScreen({super.key});
+  final int initialIndex;
+
+  const MainNavigationScreen({super.key,
+    this.initialIndex = 0,});
 
 
   @override
@@ -22,8 +25,13 @@ class MainNavigationScreen extends ConsumerStatefulWidget {
 }
 
 class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
-  int _selectedIndex = 0;
+  late int _selectedIndex;
 
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialIndex;
+  }
   // List of screens
   static const List<Widget> _screens = <Widget>[
     Dashboard(),
