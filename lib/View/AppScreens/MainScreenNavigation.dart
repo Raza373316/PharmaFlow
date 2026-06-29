@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pharmacymanagement/View/AppScreens/Addmedicine.dart';
 import 'package:pharmacymanagement/View/AppScreens/BillingScreen.dart';
+import 'package:pharmacymanagement/View/AppScreens/Sales_history_screen.dart';
 import 'package:pharmacymanagement/View/AppScreens/Search%20Medicine.dart';
 import 'package:pharmacymanagement/View/AppScreens/reports_screen.dart';
 
@@ -38,7 +39,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
     Searchmedicine(),
     Addmedicine(),
     Billingscreen(),
-    ReportsScreen(),
+    SalesHistoryScreen(),
   ];
 
 
@@ -75,7 +76,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart),
-            label: 'Reports',
+            label: 'History',
           ),
         ],
         currentIndex: _selectedIndex,
