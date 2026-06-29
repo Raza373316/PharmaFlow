@@ -83,14 +83,7 @@ class _BillingscreenState extends ConsumerState<Billingscreen> {
   // Sample medicine list
 
 
-  // bill
-  void saveSale() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Save Sale - Coming Soon"),
-      ),
-    );
-  }
+
 
   void printBill() {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -104,8 +97,8 @@ class _BillingscreenState extends ConsumerState<Billingscreen> {
   Widget build(BuildContext context) {
     final medicines = ref.watch(medicineStreamProvider);
     final billingState = ref.watch(billingProvider);
-
     final billingNotifier = ref.read(billingProvider.notifier);
+
 
     return Scaffold(
       appBar: AppBar(
@@ -529,9 +522,38 @@ class _BillingscreenState extends ConsumerState<Billingscreen> {
                   Expanded(
                     child: CustomButton(
                       text: "Save Sale",
-                      onPressed: billingState.cartItems.isNotEmpty ? saveSale : () {},
+                      isLoading: billingState.isLoading,
                       backgroundColor: Colors.green,
-                      icon: Icons.check,
+                      icon: Icons.save,
+                      onPressed: () async {
+
+                        try {
+
+                          await billingNotifier.saveSale();
+
+                          if (!mounted) return;
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Sale saved successfully"),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+
+                        } catch (e) {
+
+                          if (!mounted) return;
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(e.toString()),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+
+                        }
+
+                      },
                     ),
                   ),
                   SizedBox(width: 10),
