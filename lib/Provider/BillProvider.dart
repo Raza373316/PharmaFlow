@@ -11,43 +11,76 @@ class BillingNotifier extends StateNotifier<BillingState> {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   /// Add Medicine
-
-  void addToCart(MedicineModel medicine) {
+  String? addToCart(MedicineModel medicine) {
     final index = state.cartItems.indexWhere(
-      (item) => item.medicine.id == medicine.id,
+          (item) => item.medicine.id == medicine.id,
     );
 
+    // Stock finished
+    if (medicine.stock == 0) {
+      return "Medicine is out of stock";
+    }
+
     if (index != -1) {
+      final currentQty = state.cartItems[index].quantity;
+
+      // Cart quantity reached stock
+      if (currentQty >= medicine.stock) {
+        return "Only ${medicine.stock} items available";
+      }
+
       final updated = [...state.cartItems];
 
-      final item = updated[index];
-
-      updated[index] = item.copyWith(quantity: item.quantity + 1);
+      updated[index] =
+          updated[index].copyWith(quantity: currentQty + 1);
 
       state = state.copyWith(cartItems: updated);
     } else {
       state = state.copyWith(
         cartItems: [
           ...state.cartItems,
-
-          BillItemModel(medicine: medicine, quantity: 1),
+          BillItemModel(
+            medicine: medicine,
+            quantity: 1,
+          ),
         ],
       );
     }
+
+    return null;
   }
+
+
 
   /// Increase
 
-  void increaseQuantity(String medicineId) {
+  String? increaseQuantity(String medicineId) {
     final updated = state.cartItems.map((item) {
       if (item.medicine.id == medicineId) {
+
+        // Check stock limit
+        if (item.quantity >= item.medicine.stock) {
+          return item;
+        }
+
         return item.copyWith(quantity: item.quantity + 1);
       }
 
       return item;
     }).toList();
 
+    // Check if stock limit was reached
+    final cartItem = state.cartItems.firstWhere(
+          (item) => item.medicine.id == medicineId,
+    );
+
+    if (cartItem.quantity >= cartItem.medicine.stock) {
+      return "Only ${cartItem.medicine.stock} items available";
+    }
+
     state = state.copyWith(cartItems: updated);
+
+    return null;
   }
 
   /// Decrease
