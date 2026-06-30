@@ -236,7 +236,17 @@ class _BillingscreenState extends ConsumerState<Billingscreen> {
                               IconButton(
                                 onPressed: () {
 
+                                  final message =
                                   billingNotifier.addToCart(medicine);
+
+                                  if (message != null) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(message),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
 
                                 },
                                 icon: const Icon(Icons.add),
@@ -389,10 +399,17 @@ class _BillingscreenState extends ConsumerState<Billingscreen> {
                                             ),
                                             child: InkWell(
                                               onTap: () {
+                                                final message =
+                                                billingNotifier.increaseQuantity(item.medicine.id);
 
-                                                billingNotifier.increaseQuantity(
-                                                  item.medicine.id,
-                                                );
+                                                if (message != null) {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(message),
+                                                      backgroundColor: Colors.red,
+                                                    ),
+                                                  );
+                                                }
 
                                               },  child: Padding(
                                                 padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
