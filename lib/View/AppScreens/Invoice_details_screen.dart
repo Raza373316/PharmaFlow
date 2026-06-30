@@ -2,22 +2,23 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../../Modal/SalesModel.dart';
 import '../Custom Widget/CustomText.dart';
 
 class InvoiceDetailScreen extends StatelessWidget {
-  final Map<String, dynamic> invoiceData;
+  final SaleModel sale;
 
   const InvoiceDetailScreen({
-    Key? key,
-    required this.invoiceData,
-  }) : super(key: key);
+    super.key,
+    required this.sale,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: CustomText(
-          text: 'Invoice #${invoiceData["invoiceNumber"]}',
+          text: 'Invoice #${sale.id}',
           color: Colors.white,
           fontSize: 20,
           fontWeight: FontWeight.bold,
@@ -62,7 +63,7 @@ class InvoiceDetailScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CustomText(
-                              text: "Invoice #${invoiceData["invoiceNumber"]}",
+                              text: "Invoice #${sale.id}",
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Colors.blue,
@@ -74,7 +75,7 @@ class InvoiceDetailScreen extends StatelessWidget {
                               color: Colors.grey.shade600,
                             ),
                             CustomText(
-                              text: "${invoiceData["date"]}",
+                              text: "${sale.date.toString()}",
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: Colors.black87,
@@ -130,10 +131,10 @@ class InvoiceDetailScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: List.generate(
-                    invoiceData["items"].length,
+                    sale.items.length,
                         (index) {
-                      var item = invoiceData["items"][index];
-                      return _buildItemRow(item, index, invoiceData["items"].length);
+                      var item = sale.items[index];
+                      return _buildItemRow(item, index, sale.items.length);
                     },
                   ),
                 ),
@@ -160,7 +161,7 @@ class InvoiceDetailScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 8),
                     CustomText(
-                      text: "Rs.${invoiceData["totalAmount"]}",
+                      text: "Rs.${sale.total}",
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Colors.blue,
@@ -203,7 +204,7 @@ class InvoiceDetailScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 4),
                     CustomText(
-                      text: "${item["quantity"]} × ${item["price"]} = ${item["total"]}",
+                      text: "${item["quantity"]} × ${item["price"]} = ${item["quantity"]*item['price']}",
                       fontSize: 12,
                       color: Colors.grey.shade600,
                     ),
@@ -211,7 +212,7 @@ class InvoiceDetailScreen extends StatelessWidget {
                 ),
               ),
               CustomText(
-                text: "Rs. ${item["total"]}",
+                text: "Rs. ${item["quantity"]*item['price']}",
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
                 color: Colors.green,

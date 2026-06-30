@@ -7,7 +7,7 @@ import 'package:pharmacymanagement/View/AppScreens/Addmedicine.dart';
 import 'package:pharmacymanagement/View/AppScreens/BillingScreen.dart';
 import 'package:pharmacymanagement/View/AppScreens/Sales_history_screen.dart';
 import 'package:pharmacymanagement/View/AppScreens/Search%20Medicine.dart';
-import 'package:pharmacymanagement/View/AppScreens/reports_screen.dart';
+
 
 import '../../Provider/UserProvider.dart';
 import '../../Provider/authProvider.dart';
