@@ -9,9 +9,7 @@ import 'package:pharmacymanagement/View/AppScreens/Sales_history_screen.dart';
 import 'package:pharmacymanagement/View/AppScreens/Search%20Medicine.dart';
 
 
-import '../../Provider/UserProvider.dart';
-import '../../Provider/authProvider.dart';
-import '../auth/LoginScreen.dart';
+
 import 'Dashboard.dart';
 
 class MainNavigationScreen extends ConsumerStatefulWidget {
