@@ -2,10 +2,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pharmacymanagement/View/AppScreens/MainScreenNavigation.dart';
+import 'package:pharmacymanagement/View/AppScreens/Sales_history_screen.dart';
+import 'package:pharmacymanagement/View/AppScreens/Search%20Medicine.dart';
 import 'package:pharmacymanagement/View/Custom%20Widget/CustomButton.dart';
 import 'package:pharmacymanagement/View/Custom%20Widget/CustomText.dart';
 import 'package:pharmacymanagement/View/auth/LoginScreen.dart';
 
+import '../../Provider/Dashboard_provider.dart';
 import '../../Provider/UserProvider.dart';
 import '../../Provider/authProvider.dart';
 import '../Custom Widget/CustomTextField.dart';
@@ -15,24 +18,27 @@ class Dashboard extends ConsumerStatefulWidget {
 
   @override
   ConsumerState<Dashboard> createState() => _DashboardState();
+
 }
 
 class _DashboardState extends ConsumerState<Dashboard> {
   TextEditingController search = TextEditingController();
+
 
   void initState() {
     super.initState();
 
     Future.microtask(() {
       final uid = FirebaseAuth.instance.currentUser!.uid;
-
       ref.read(userProvider.notifier).fetchUser(uid);
+      ref.read(dashboardProvider.notifier).fetchDashboardData();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final userState = ref.watch(userProvider);
+    final dashboardState = ref.watch(dashboardProvider);
     return Scaffold(
 
       appBar: AppBar(
@@ -45,6 +51,9 @@ class _DashboardState extends ConsumerState<Dashboard> {
           children: [
 
             UserAccountsDrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue
+              ),
               accountName: Text(
                 userState.user?.name ?? "Loading...",
               ),
@@ -59,24 +68,31 @@ class _DashboardState extends ConsumerState<Dashboard> {
                   size: 40,
                 ),
               ),
+
             ),
 
             ListTile(
               leading: const Icon(Icons.home),
               title: const Text("Dashboard"),
-              onTap: () {},
+              onTap: () {
+                Navigator.pop(context);
+              },
             ),
 
             ListTile(
               leading: const Icon(Icons.medication),
               title: const Text("Medicines"),
-              onTap: () {},
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>Searchmedicine()));
+              },
             ),
 
             ListTile(
               leading: const Icon(Icons.shopping_cart),
               title: const Text("Sales"),
-              onTap: () {},
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>SalesHistoryScreen()));
+              },
             ),
 
             const Divider(),
@@ -114,26 +130,65 @@ class _DashboardState extends ConsumerState<Dashboard> {
               controller: search,
               hintText: "Search",
               prefixIcon: Icons.search,
-              onTap: () {},
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>Searchmedicine()));
+              },
               backgroundcolor: Colors.blue.shade100,
             ),
 
             SizedBox(height: 10),
             Row(
               children: [
+
                 Expanded(
-                  child: _infoCard(
-                    icon: Icons.money,
-                    label: "Total sales today",
-                    value: "25500 pkr",
+                  child: InkWell(
+                    onTap: () {
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                          const SalesHistoryScreen(),
+                        ),
+                      );
+
+                    },
+                    child: _infoCard(
+                      icon: Icons.money,
+                      label: "Total sales today",
+                      value: "${dashboardState.todaySales}",
+
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: _infoCard(
-                    icon: Icons.countertops_rounded,
-                    label: "Low Stock Items",
-                    value: "21",
+                  child: InkWell(
+
+                    onTap: () {
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                          const Searchmedicine(
+                            initialFilter: "Low Stocks",
+                          ),
+                        ),
+                      );
+
+
+                    },
+
+                    child: _infoCard(
+                      icon: Icons.countertops_rounded,
+                      label: "Low Stock Items",
+                      value: "${dashboardState.lowStockMedicines}",
+
+
+
+
+                    ),
                   ),
                 ),
               ],
@@ -142,18 +197,50 @@ class _DashboardState extends ConsumerState<Dashboard> {
             Row(
               children: [
                 Expanded(
-                  child: _infoCard(
-                    icon: Icons.event_busy,
-                    label: "Expiry Soon",
-                    value: "5",
+                  child: InkWell(
+                    onTap: (){
+
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                          const Searchmedicine(
+                            initialFilter: "Expiry",
+                          ),
+                        ),
+                      );
+
+
+                    },
+                    child: _infoCard(
+                      icon: Icons.event_busy,
+                      label: "Expiry Soon",
+                      value: "${dashboardState.expiryMedicines}",
+
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: _infoCard(
-                    icon: Icons.dashboard,
-                    label: "Total Items",
-                    value: "321",
+                  child: InkWell(
+                    onTap: () {
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                          const Searchmedicine(),
+                        ),
+                      );
+
+                    },
+                    child: _infoCard(
+                      icon: Icons.dashboard,
+                      label: "Total Items",
+                      value: dashboardState.totalMedicines.toString(),
+
+                    ),
                   ),
                 ),
               ],
@@ -204,26 +291,32 @@ Widget _infoCard({
   required IconData icon,
   required String label,
   required String value,
+
 }) {
-  return Container(
-    padding: const EdgeInsets.all(14),
-    decoration: BoxDecoration(
-      color: Colors.white60,
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(icon),
-            const SizedBox(width: 6),
-            Expanded(child: CustomText(text: label, fontSize: 12)),
-          ],
-        ),
-        const SizedBox(height: 10),
-        CustomText(text: value,fontSize: 22,fontWeight: FontWeight.bold,),
-      ],
+  return InkWell(
+    child: Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white60,
+        borderRadius: BorderRadius.circular(12),
+
+      ),
+
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon),
+              const SizedBox(width: 6),
+              Expanded(child: CustomText(text: label, fontSize: 12)),
+            ],
+          ),
+          const SizedBox(height: 10),
+          CustomText(text: value,fontSize: 22,fontWeight: FontWeight.bold,),
+        ],
+      ),
+
     ),
   );
 }
