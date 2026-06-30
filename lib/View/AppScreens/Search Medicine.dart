@@ -7,25 +7,25 @@ import 'package:pharmacymanagement/View/Custom%20Widget/MedicineSearchCard.dart'
 import '../../Provider/MedicineProvider.dart';
 
 class Searchmedicine extends ConsumerStatefulWidget {
-  const Searchmedicine({super.key});
+
+  final String initialFilter;
+
+  const Searchmedicine({
+    super.key,
+    this.initialFilter = "All",
+  });
 
   @override
-  ConsumerState<Searchmedicine> createState() => _SearchmedicineState();
+  ConsumerState<Searchmedicine> createState() =>
+      _SearchmedicineState();
 }
-
 class _SearchmedicineState extends ConsumerState<Searchmedicine> {
   TextEditingController search=TextEditingController();
   String getStatus(dynamic medicine) {
     final now = DateTime.now();
 
     try {
-      final parts = medicine.expiryDate.split("/");
-
-      final expiry = DateTime(
-        int.parse(parts[2]),
-        int.parse(parts[1]),
-        int.parse(parts[0]),
-      );
+      final expiry = DateTime.parse(medicine.expiryDate);
 
       if (expiry.isBefore(now.add(const Duration(days: 30)))) {
         return "Expiry Soon";
@@ -39,8 +39,14 @@ class _SearchmedicineState extends ConsumerState<Searchmedicine> {
     return "Available";
   }
 
-  String Selected = 'All';
+  late String Selected;
   String searchText = "";
+  @override
+  void initState() {
+    super.initState();
+
+    Selected = widget.initialFilter;
+  }
   final List<Map<String, dynamic>> Filters = [
     {'label': 'All', 'color': Colors.blue},
     {'label': 'Low Stocks', 'color': Colors.orange},
@@ -156,13 +162,8 @@ class _SearchmedicineState extends ConsumerState<Searchmedicine> {
 
                     filteredMedicines = filteredMedicines.where((medicine) {
                       try {
-                        final parts = medicine.expiryDate.split("/");
+                        final expiry = DateTime.parse(medicine.expiryDate);
 
-                        final expiry = DateTime(
-                          int.parse(parts[2]),
-                          int.parse(parts[1]),
-                          int.parse(parts[0]),
-                        );
 
                         return expiry.isBefore(
                           now.add(const Duration(days: 30)),
