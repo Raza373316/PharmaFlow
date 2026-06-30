@@ -39,13 +39,14 @@ class _AddmedicineState extends ConsumerState<Addmedicine> {
     DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
+      firstDate: DateTime(DateTime.now().day+100),
       lastDate: DateTime(DateTime.now().year+7),
     );
 
     if (pickedDate != null) {
       controller.text =
-      "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+      pickedDate.toIso8601String().split("T")[0];
+      //"${pickedDate.day}-${pickedDate.month}-${pickedDate.year}";
     }
   }
 
@@ -199,7 +200,7 @@ class _AddmedicineState extends ConsumerState<Addmedicine> {
                     sellPrice: double.parse(sellingprice.text.trim()),
                     category: catergory.text.trim(),
                     company: company.text.trim(),
-                    expiryDate: expirydate.text.trim(),
+                    expiryDate: expirydate.text,
                   );
 
                   await ref
