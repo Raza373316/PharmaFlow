@@ -1,23 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pharmacymanagement/View/AppScreens/MainScreenNavigation.dart';
 import 'package:pharmacymanagement/View/Custom%20Widget/CustomButton.dart';
 import 'package:pharmacymanagement/View/Custom%20Widget/CustomTextField.dart';
+import 'package:pharmacymanagement/View/auth/SignupScreen.dart';
 
+import '../../Provider/authProvider.dart';
 import '../Custom Widget/CustomText.dart';
 
-class Loginscreen extends StatefulWidget {
+class Loginscreen extends ConsumerStatefulWidget {
   const Loginscreen({super.key});
 
   @override
-  State<Loginscreen> createState() => _LoginscreenState();
+  ConsumerState<Loginscreen> createState() => _LoginscreenState();
 }
 
-class _LoginscreenState extends State<Loginscreen> {
+class _LoginscreenState extends ConsumerState<Loginscreen> {
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final authState = ref.watch(authProvider);
+  final authNotifier = ref.read(authProvider.notifier);
+
+  return Scaffold(
       backgroundColor: Colors.lightBlue.shade300,
       body: Padding(
         padding: const EdgeInsets.all(10),
@@ -59,16 +66,52 @@ class _LoginscreenState extends State<Loginscreen> {
             SizedBox(height: 25),
             CustomButton(
               text: "Sign In",
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>MainNavigationScreen()));
+              isLoading: authState.isLoading,
+              onPressed: () async{
+
+
+                final user = await authNotifier.login(
+                    email: email.text.trim()
+                    ,password: password.text.trim()
+
+                );
+
+                if(user == null ){
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("SignIn Failed")),
+                  );
+                  return ;
+                }
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const MainNavigationScreen(),
+                  ),
+                );
               },
               icon: Icons.assignment_turned_in_outlined,
             ),
             SizedBox(height: 10,),
             Divider(),
             SizedBox(height: 10,),
-            CustomButton(text: "Google Sign in", onPressed: (){},backgroundColor:Colors.black45,icon: Icons.assignment_turned_in_outlined)
-
+            CustomButton(text: "Google Sign in", onPressed: (){},
+                backgroundColor:Colors.black45,icon: Icons.assignment_turned_in_outlined),
+                SizedBox(height: 10,),
+                Row(  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    CustomText(text: "If you don't acount?"),
+                    InkWell(child: CustomText(text: "Sign Up",
+                    color: Colors.blueAccent,),
+                    onTap: (){
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const Signupscreen(),
+                        ),
+                      );
+                        },)
+                  ],
+                ),
           ],
 
         )

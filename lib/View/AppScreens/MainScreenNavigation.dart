@@ -1,31 +1,45 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pharmacymanagement/View/AppScreens/Addmedicine.dart';
 import 'package:pharmacymanagement/View/AppScreens/BillingScreen.dart';
+import 'package:pharmacymanagement/View/AppScreens/Sales_history_screen.dart';
 import 'package:pharmacymanagement/View/AppScreens/Search%20Medicine.dart';
-import 'package:pharmacymanagement/View/AppScreens/reports_screen.dart';
+
+
 
 import 'Dashboard.dart';
 
-class MainNavigationScreen extends StatefulWidget {
-  const MainNavigationScreen({super.key});
+class MainNavigationScreen extends ConsumerStatefulWidget {
+  final int initialIndex;
+
+  const MainNavigationScreen({super.key,
+    this.initialIndex = 0,});
+
 
   @override
-  State<MainNavigationScreen> createState() => _MainNavigationScreenState();
+  ConsumerState<MainNavigationScreen> createState() => _MainNavigationScreenState();
 }
 
-class _MainNavigationScreenState extends State<MainNavigationScreen> {
-  int _selectedIndex = 0;
+class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
+  late int _selectedIndex;
 
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialIndex;
+  }
   // List of screens
   static const List<Widget> _screens = <Widget>[
     Dashboard(),
     Searchmedicine(),
     Addmedicine(),
     Billingscreen(),
-    ReportsScreen(),
+    SalesHistoryScreen(),
   ];
+
+
 
   void _onItemTapped(int index) {
     setState(() {
@@ -35,8 +49,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: _screens.elementAt(_selectedIndex),
+
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -57,7 +73,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart),
-            label: 'Reports',
+            label: 'History',
           ),
         ],
         currentIndex: _selectedIndex,

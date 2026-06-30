@@ -1,19 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pharmacymanagement/View/Custom%20Widget/CustomText.dart';
 import 'package:pharmacymanagement/View/Custom%20Widget/CustomTextField.dart';
 import 'package:pharmacymanagement/View/Custom%20Widget/MedicineSearchCard.dart';
 
-class Searchmedicine extends StatefulWidget {
-  const Searchmedicine({super.key});
+import '../../Provider/MedicineProvider.dart';
+
+class Searchmedicine extends ConsumerStatefulWidget {
+
+  final String initialFilter;
+
+  const Searchmedicine({
+    super.key,
+    this.initialFilter = "All",
+  });
 
   @override
-  State<Searchmedicine> createState() => _SearchmedicineState();
+  ConsumerState<Searchmedicine> createState() =>
+      _SearchmedicineState();
 }
-
-class _SearchmedicineState extends State<Searchmedicine> {
+class _SearchmedicineState extends ConsumerState<Searchmedicine> {
   TextEditingController search=TextEditingController();
+  String getStatus(dynamic medicine) {
+    final now = DateTime.now();
 
-  String Selected = 'All';
+    try {
+      final expiry = DateTime.parse(medicine.expiryDate);
+
+      if (expiry.isBefore(now.add(const Duration(days: 30)))) {
+        return "Expiry Soon";
+      }
+    } catch (_) {}
+
+    if (medicine.stock <= 10) {
+      return "Low Stock";
+    }
+
+    return "Available";
+  }
+
+  late String Selected;
+  String searchText = "";
+  @override
+  void initState() {
+    super.initState();
+
+    Selected = widget.initialFilter;
+  }
   final List<Map<String, dynamic>> Filters = [
     {'label': 'All', 'color': Colors.blue},
     {'label': 'Low Stocks', 'color': Colors.orange},
@@ -22,6 +55,7 @@ class _SearchmedicineState extends State<Searchmedicine> {
   ];
   @override
   Widget build(BuildContext context) {
+    final medicines = ref.watch(medicineStreamProvider);
     return Scaffold(
 
       appBar: AppBar(
@@ -35,8 +69,16 @@ class _SearchmedicineState extends State<Searchmedicine> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SizedBox(height: 10,),
-            CustomTextField(controller: search, hintText:"Search",
-            prefixIcon: Icons.search,),
+            CustomTextField(
+              controller: search,
+              hintText: "Search",
+              prefixIcon: Icons.search,
+              onChanged: (value) {
+                setState(() {
+                  searchText = value.toLowerCase();
+                });
+              },
+            ),
             SizedBox(height: 10,),
             CustomText(text: "Filters",color: Colors.white,),
 
@@ -80,18 +122,77 @@ class _SearchmedicineState extends State<Searchmedicine> {
                 }).toList(),
               ),
             ),
+
             Expanded(
-              child: ListView(
-                children: [
-                  Medicinesearchcard(price: 100, Name: 'Panadol', ExpiryDate: '10/12/21', Stock: 7,
-                    Status: 'Low Stock',),
-                  Medicinesearchcard(price: 100, Name: 'Agmintan', ExpiryDate: '10/12/21', Stock: 7,
-                    Status: 'Expiry',),
-                  Medicinesearchcard(price: 100, Name: 'Panadol', ExpiryDate: '10/12/21', Stock: 7,
-                    Status: 'Low Stock',),
-                  Medicinesearchcard(price: 100, Name: 'Panadol', ExpiryDate: '10/12/21', Stock: 7,
-                    Status: 'Avaible',),
-                ],
+              child: medicines.when(
+                data: (medicineList) {
+                  if (medicineList.isEmpty) {
+                    return const Center(
+                      child: Text("No medicines found"),
+                    );
+                  }
+
+                  final query = search.text.toLowerCase();
+
+                  List filteredMedicines = medicineList.where((medicine) {
+                    return medicine.stock > 0 &&
+                        medicine.name.toLowerCase().contains(query);
+                  }).toList();
+
+                  filteredMedicines.sort((a, b) {
+                    final aStarts = a.name.toLowerCase().startsWith(query);
+                    final bStarts = b.name.toLowerCase().startsWith(query);
+
+                    if (aStarts && !bStarts) return -1;
+                    if (!aStarts && bStarts) return 1;
+
+                    return a.name.compareTo(b.name);
+                  });
+
+// Low Stock Filter
+                  if (Selected == "Low Stocks") {
+                    filteredMedicines = filteredMedicines.where((medicine) {
+                      return medicine.stock <= 10;
+                    }).toList();
+                  }
+
+// Expiry Filter
+                  if (Selected == "Expiry") {
+                    final now = DateTime.now();
+
+                    filteredMedicines = filteredMedicines.where((medicine) {
+                      try {
+                        final expiry = DateTime.parse(medicine.expiryDate);
+
+
+                        return expiry.isBefore(
+                          now.add(const Duration(days: 30)),
+                        );
+                      } catch (e) {
+                        return false;
+                      }
+                    }).toList();
+                  }
+
+                  return ListView.builder(
+                    itemCount: filteredMedicines.length,
+                    itemBuilder: (context, index) {
+                      final medicine = filteredMedicines[index];
+
+
+                      return Medicinesearchcard(
+                        Name: medicine.name,
+                        price: medicine.sellPrice,
+                        ExpiryDate: medicine.expiryDate,
+                        Stock: medicine.stock,
+                        Status: getStatus(medicine),
+                      );
+                    },
+                  );
+                },
+                loading: () =>
+                const Center(child: CircularProgressIndicator()),
+                error: (e, _) => Center(child: Text(e.toString())),
               ),
             )
           ],

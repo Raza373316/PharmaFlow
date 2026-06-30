@@ -59,111 +59,47 @@
 //---------------------------------------------------
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pharmacymanagement/View/Custom%20Widget/CustomText.dart';
 import 'package:pharmacymanagement/View/Custom%20Widget/CustomTextField.dart';
 import 'package:pharmacymanagement/View/Custom%20Widget/CustomButton.dart';
 
-// Model for medicine in cart
-class CartItem {
-  String name;
-  int price;
-  int quantity;
+import '../../Provider/BillProvider.dart';
+import '../../Provider/MedicineProvider.dart';
 
-  CartItem({required this.name, required this.price, required this.quantity});
 
-  int get total => price * quantity;
-}
-
-class Billingscreen extends StatefulWidget {
+class Billingscreen extends ConsumerStatefulWidget {
   const Billingscreen({super.key});
 
   @override
-  State<Billingscreen> createState() => _BillingscreenState();
+  ConsumerState<Billingscreen> createState() => _BillingscreenState();
 }
 
-class _BillingscreenState extends State<Billingscreen> {
+class _BillingscreenState extends ConsumerState<Billingscreen> {
   TextEditingController search = TextEditingController();
+  String searchText = "";
+
 
   // Sample medicine list
-  List<Map<String, dynamic>> medicines = [
-    {"name": "Panadol", "stock": 29, "price": 100},
-    {"name": "Calpol", "stock": 9, "price": 170},
-    {"name": "Aspirin", "stock": 45, "price": 80},
-    {"name": "Ibuprofen", "stock": 20, "price": 120},
-    {"name": "Alp", "stock": 210, "price": 190},
-    {"name": "Spirit", "stock": 10, "price": 20},
-  ];
 
-  // Cart items list
-  List<CartItem> cartItems = [];
 
-  // Calculate subtotal
-  int get subtotal => cartItems.fold(0, (sum, item) => sum + item.total);
 
-  // Calculate tax (5%)
-  int get tax => (subtotal * 0.05).toInt();
 
-  // Calculate total
-  int get total => subtotal + tax;
-
-  // Add medicine to cart
-  void addToCart(String name, int price) {
-    setState(() {
-      // Check if medicine already in cart
-      int index = cartItems.indexWhere((item) => item.name == name);
-
-      if (index >= 0) {
-        // If exists, increase quantity
-        cartItems[index].quantity++;
-      } else {
-        // Add new item to cart
-        cartItems.add(CartItem(name: name, price: price, quantity: 1));
-      }
-    });
-  }
-
-  // Remove medicine from cart
-  void removeFromCart(int index) {
-    setState(() {
-      cartItems.removeAt(index);
-    });
-  }
-
-  // Update quantity
-  void updateQuantity(int index, int newQuantity) {
-    setState(() {
-      if (newQuantity > 0) {
-        cartItems[index].quantity = newQuantity;
-      } else {
-        cartItems.removeAt(index);
-      }
-    });
-  }
-
-  // Print bill
   void printBill() {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: CustomText(text: "Bill printed! Total: Rs.$total", color: Colors.white),
-        backgroundColor: Colors.blue,
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
-
-  // Save sale
-  void saveSale() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: CustomText(text: "Bill saved! Total: Rs.$total", color: Colors.white),
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 2),
+      const SnackBar(
+        content: Text("Print Bill - Coming Soon"),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final medicines = ref.watch(medicineStreamProvider);
+    final billingState = ref.watch(billingProvider);
+    final billingNotifier = ref.read(billingProvider.notifier);
+
+
     return Scaffold(
       appBar: AppBar(
         title: CustomText(text: "Create Invoice", color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
@@ -183,6 +119,11 @@ class _BillingscreenState extends State<Billingscreen> {
                 controller: search,
                 hintText: 'Search medicine',
                 prefixIcon: Icons.search,
+                onChanged:  (value) {
+                  setState(() {
+                    searchText = value.toLowerCase();
+                  });
+                },
               ),
 
               SizedBox(height: 10),
@@ -217,59 +158,107 @@ class _BillingscreenState extends State<Billingscreen> {
                     ),
                   ],
                 ),
-                child: ListView.builder(
-                  itemCount: medicines.length,
-                  itemBuilder: (context, index) {
-                    var medicine = medicines[index];
-                    return Container(
-                      margin: EdgeInsets.only(bottom: 8),
-                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Medicine Info
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                CustomText(
-                                  text: medicine["name"],
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                CustomText(
-                                  text: "Rs.${medicine["price"]} | Stock: ${medicine["stock"]}",
-                                  fontSize: 11,
-                                  color: Colors.grey,
-                                ),
-                              ],
-                            ),
-                          ),
+                child: medicines.when(
 
-                          // Plus Button
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade100,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: IconButton(
-                              onPressed: () => addToCart(medicine["name"], medicine["price"]),
-                              icon: Icon(Icons.add, size: 18, color: Colors.blue),
-                              padding: EdgeInsets.all(4),
-                              constraints: BoxConstraints(),
+                  loading: () =>
+                  const Center(child: CircularProgressIndicator()),
+
+                  error: (e, _) =>
+                      Center(child: Text(e.toString())),
+
+                  data: (medicineList) {
+
+                    final query = search.text.toLowerCase();
+
+                    final filteredMedicines = medicineList.where((medicine) {
+
+                      return medicine.stock > 0 &&
+                          medicine.name.toLowerCase().contains(query);
+                    }).toList();
+
+                    filteredMedicines.sort((a, b) {
+                      final aStarts = a.name.toLowerCase().startsWith(query);
+                      final bStarts = b.name.toLowerCase().startsWith(query);
+
+                      if (aStarts && !bStarts) return -1;
+                      if (!aStarts && bStarts) return 1;
+
+                      return a.name.compareTo(b.name);
+                    });
+
+
+                    return ListView.builder(
+
+                      itemCount: filteredMedicines.length,
+
+                      itemBuilder: (context, index) {
+
+                        final medicine = filteredMedicines[index];
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: Colors.grey.shade300,
                             ),
                           ),
-                        ],
-                      ),
+                          child: Row(
+                            mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                            children: [
+
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                                  children: [
+
+                                    CustomText(
+                                      text: medicine.name,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+
+                                    CustomText(
+                                      text:
+                                      "Rs.${medicine.sellPrice} | Stock : ${medicine.stock}",
+                                      fontSize: 11,
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              IconButton(
+                                onPressed: () {
+
+                                  final message =
+                                  billingNotifier.addToCart(medicine);
+
+                                  if (message != null) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(message),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+
+                                },
+                                icon: const Icon(Icons.add),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     );
                   },
                 ),
+
               ),
 
               SizedBox(height: 15),
@@ -328,7 +317,7 @@ class _BillingscreenState extends State<Billingscreen> {
                     // Cart Items List
                     Container(
                       constraints: BoxConstraints(minHeight: 100, maxHeight: 400),
-                      child: cartItems.isEmpty
+                      child: billingState.cartItems.isEmpty
                           ? Center(
                         child: Padding(
                           padding: const EdgeInsets.all(20.0),
@@ -342,9 +331,9 @@ class _BillingscreenState extends State<Billingscreen> {
                       )
                           : ListView.builder(
                         shrinkWrap: true,
-                        itemCount: cartItems.length,
+                        itemCount: billingState.cartItems.length,
                         itemBuilder: (context, index) {
-                          var item = cartItems[index];
+                          var item = billingState.cartItems[index];
                           return Container(
                             padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                             decoration: BoxDecoration(
@@ -361,12 +350,12 @@ class _BillingscreenState extends State<Billingscreen> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       CustomText(
-                                        text: item.name,
+                                        text: item.medicine.name,
                                         fontSize: 13,
                                         fontWeight: FontWeight.w600,
                                       ),
                                       CustomText(
-                                        text: "Rs.${item.price} each",
+                                        text: "Rs.${item.medicine.sellPrice} each",
                                         fontSize: 11,
                                         color: Colors.grey,
                                       ),
@@ -380,7 +369,9 @@ class _BillingscreenState extends State<Billingscreen> {
                                               borderRadius: BorderRadius.circular(3),
                                             ),
                                             child: InkWell(
-                                              onTap: () => updateQuantity(index, item.quantity - 1),
+                                              onTap: () => billingNotifier.decreaseQuantity(
+                                                item.medicine.id,
+                                              ),
                                               child: Padding(
                                                 padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                                 child: Icon(Icons.remove, size: 14, color: Colors.red),
@@ -407,8 +398,20 @@ class _BillingscreenState extends State<Billingscreen> {
                                               borderRadius: BorderRadius.circular(3),
                                             ),
                                             child: InkWell(
-                                              onTap: () => updateQuantity(index, item.quantity + 1),
-                                              child: Padding(
+                                              onTap: () {
+                                                final message =
+                                                billingNotifier.increaseQuantity(item.medicine.id);
+
+                                                if (message != null) {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(message),
+                                                      backgroundColor: Colors.red,
+                                                    ),
+                                                  );
+                                                }
+
+                                              },  child: Padding(
                                                 padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                                 child: Icon(Icons.add, size: 14, color: Colors.green),
                                               ),
@@ -435,7 +438,7 @@ class _BillingscreenState extends State<Billingscreen> {
                                 Expanded(
                                   flex: 1,
                                   child: CustomText(
-                                    text: "Rs.${item.price}",
+                                    text: "Rs.${item.medicine.sellPrice}",
                                     fontSize: 11,
                                     textAlign: TextAlign.center,
                                   ),
@@ -445,7 +448,7 @@ class _BillingscreenState extends State<Billingscreen> {
                                 Expanded(
                                   flex: 1,
                                   child: CustomText(
-                                    text: "Rs.${item.total}",
+                                    text: "Rs.${item.subtotal}",
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.blue,
@@ -457,8 +460,13 @@ class _BillingscreenState extends State<Billingscreen> {
 
                                 // Delete Button
                                 InkWell(
-                                  onTap: () => removeFromCart(index),
-                                  child: Icon(Icons.delete_outline, size: 18, color: Colors.red),
+                                  onTap: () {
+
+                                    billingNotifier.removeItem(
+                                      item.medicine.id,
+                                    );
+
+                                  },   child: Icon(Icons.delete_outline, size: 18, color: Colors.red),
                                 ),
                               ],
                             ),
@@ -486,15 +494,15 @@ class _BillingscreenState extends State<Billingscreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               CustomText(text: "Subtotal:", fontSize: 12, color: Colors.grey),
-                              CustomText(text: "Rs.$subtotal", fontSize: 12, fontWeight: FontWeight.w600),
+                              CustomText(text: "Rs.${billingState.total.toStringAsFixed(2)}", fontSize: 12, fontWeight: FontWeight.w600),
                             ],
                           ),
                           SizedBox(height: 8),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              CustomText(text: "Tax (5%):", fontSize: 12, color: Colors.grey),
-                              CustomText(text: "Rs.$tax", fontSize: 12, fontWeight: FontWeight.w600),
+                              CustomText(text: "Tax (0%):", fontSize: 12, color: Colors.grey),
+                              CustomText(text: "Rs.0", fontSize: 12, fontWeight: FontWeight.w600),
                             ],
                           ),
                           SizedBox(height: 10),
@@ -509,7 +517,7 @@ class _BillingscreenState extends State<Billingscreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                               CustomText(
-                                text: "Rs.$total",
+                                text: "Rs.${billingState.total.toStringAsFixed(2)}",
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.blue,
@@ -531,16 +539,45 @@ class _BillingscreenState extends State<Billingscreen> {
                   Expanded(
                     child: CustomButton(
                       text: "Save Sale",
-                      onPressed: cartItems.isNotEmpty ? saveSale : () {},
+                      isLoading: billingState.isLoading,
                       backgroundColor: Colors.green,
-                      icon: Icons.check,
+                      icon: Icons.save,
+                      onPressed: () async {
+
+                        try {
+
+                          await billingNotifier.saveSale();
+
+                          if (!mounted) return;
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Sale saved successfully"),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+
+                        } catch (e) {
+
+                          if (!mounted) return;
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(e.toString()),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+
+                        }
+
+                      },
                     ),
                   ),
                   SizedBox(width: 10),
                   Expanded(
                     child: CustomButton(
                       text: "Print Bill",
-                      onPressed: cartItems.isNotEmpty ? printBill : () {},
+                      onPressed: billingState.cartItems.isNotEmpty ? printBill : () {},
                       backgroundColor: Colors.blue,
                       icon: Icons.print,
                     ),

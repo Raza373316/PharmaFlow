@@ -64,7 +64,7 @@ class _MedicinesearchcardState extends State<Medicinesearchcard> {
               borderRadius: BorderRadius.circular(10),
               color: widget.Status == 'Low Stock'
                   ? Colors.orange
-                  : widget.Status == 'Expiry'
+                  : widget.Status == 'Expiry Soon'
                   ? Colors.red
                   : Colors.blue,
             ),
