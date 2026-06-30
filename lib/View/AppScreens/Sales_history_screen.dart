@@ -1,82 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pharmacymanagement/Modal/SalesModel.dart';
 import 'package:pharmacymanagement/View/Custom%20Widget/CustomText.dart';
 import 'package:pharmacymanagement/View/Custom%20Widget/CustomTextField.dart';
 
+import '../../Provider/SaleProvider.dart';
 import 'Invoice_details_screen.dart';
 
-class SalesHistoryScreen extends StatefulWidget {
+class SalesHistoryScreen extends ConsumerStatefulWidget {
   const SalesHistoryScreen({super.key});
 
   @override
-  State<SalesHistoryScreen> createState() => _SalesHistoryScreenState();
+  ConsumerState<SalesHistoryScreen> createState() => _SalesHistoryScreenState();
 }
 
-class _SalesHistoryScreenState extends State<SalesHistoryScreen> {
+class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
   TextEditingController searchController = TextEditingController();
 
   // Sample sales data
-  final List<Map<String, dynamic>> salesHistory = [
-    {
-      "invoiceNumber": "1001",
-      "date": "28 Jun 2026",
-      "itemCount": 3,
-      "totalAmount": 1450,
-      "items": [
-        {"name": "Panadol", "quantity": 2, "price": 120, "total": 240},
-        {"name": "Augmentin", "quantity": 1, "price": 450, "total": 450},
-        {"name": "Brufen", "quantity": 3, "price": 250, "total": 750},
-      ]
-    },
-    {
-      "invoiceNumber": "1002",
-      "date": "28 Jun 2026",
-      "itemCount": 2,
-      "totalAmount": 750,
-      "items": [
-        {"name": "Calpol", "quantity": 2, "price": 200, "total": 400},
-        {"name": "Aspirin", "quantity": 1, "price": 350, "total": 350},
-      ]
-    },
-    {
-      "invoiceNumber": "1003",
-      "date": "27 Jun 2026",
-      "itemCount": 5,
-      "totalAmount": 3900,
-      "items": [
-        {"name": "Ibuprofen", "quantity": 2, "price": 150, "total": 300},
-        {"name": "Vitamin C", "quantity": 3, "price": 200, "total": 600},
-        {"name": "Amoxicillin", "quantity": 1, "price": 500, "total": 500},
-        {"name": "Augmentin", "quantity": 2, "price": 400, "total": 800},
-        {"name": "Brufen", "quantity": 2, "price": 350, "total": 700},
-      ]
-    },
-    {
-      "invoiceNumber": "1004",
-      "date": "26 Jun 2026",
-      "itemCount": 4,
-      "totalAmount": 2200,
-      "items": [
-        {"name": "Panadol", "quantity": 3, "price": 120, "total": 360},
-        {"name": "Calpol", "quantity": 1, "price": 200, "total": 200},
-        {"name": "Brufen", "quantity": 2, "price": 250, "total": 500},
-        {"name": "Aspirin", "quantity": 2, "price": 350, "total": 700},
-      ]
-    },
-    {
-      "invoiceNumber": "1005",
-      "date": "25 Jun 2026",
-      "itemCount": 3,
-      "totalAmount": 1800,
-      "items": [
-        {"name": "Vitamin C", "quantity": 4, "price": 200, "total": 800},
-        {"name": "Panadol", "quantity": 2, "price": 120, "total": 240},
-        {"name": "Calpol", "quantity": 2, "price": 200, "total": 400},
-      ]
-    },
-  ];
+
 
   @override
   Widget build(BuildContext context) {
+    final sales = ref.watch(saleStreamProvider);
     return Scaffold(
       appBar: AppBar(
         title: CustomText(
@@ -106,11 +52,39 @@ class _SalesHistoryScreenState extends State<SalesHistoryScreen> {
 
             // Sales List
             Expanded(
-              child: ListView.builder(
-                itemCount: salesHistory.length,
-                itemBuilder: (context, index) {
-                  var sale = salesHistory[index];
-                  return _buildInvoiceCard(context, sale);
+              child: sales.when(
+
+                loading: () =>
+                const Center(
+                  child: CircularProgressIndicator(),
+                ),
+
+                error: (e, _) =>
+                    Center(
+                      child: Text(e.toString()),
+                    ),
+
+                data: (saleList) {
+
+                  if (saleList.isEmpty) {
+                    return const Center(
+                      child: Text("No Sales Found"),
+                    );
+                  }
+
+                  return ListView.builder(
+
+                    itemCount: saleList.length,
+
+                    itemBuilder: (context, index) {
+
+                      final sale = saleList[index];
+
+                      return _buildInvoiceCard(context, sale);
+
+                    },
+                  );
+
                 },
               ),
             ),
@@ -120,13 +94,13 @@ class _SalesHistoryScreenState extends State<SalesHistoryScreen> {
     );
   }
 //---------------------invoice card
-  Widget _buildInvoiceCard(BuildContext context, Map<String, dynamic> sale) {
+  Widget _buildInvoiceCard(BuildContext context, SaleModel sale) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => InvoiceDetailScreen(invoiceData: sale),
+            builder: (context) => InvoiceDetailScreen(sale: sale),
           ),
         );
       },
@@ -152,7 +126,7 @@ class _SalesHistoryScreenState extends State<SalesHistoryScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 CustomText(
-                  text: "Invoice #${sale["invoiceNumber"]}",
+                  text: "Invoice #${sale.id}",
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
                   color: Colors.blue,
@@ -175,13 +149,13 @@ class _SalesHistoryScreenState extends State<SalesHistoryScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CustomText(
-                      text: "${sale["date"]}",
+                      text: "${sale.date.toString()}",
                       fontSize: 12,
                       color: Colors.grey.shade600,
                     ),
                     SizedBox(height: 4),
                     CustomText(
-                      text: "${sale["itemCount"]} Items",
+                      text: "${sale.items.length} Items",
                       fontSize: 12,
                       color: Colors.grey.shade600,
                       fontWeight: FontWeight.w500,
@@ -189,7 +163,7 @@ class _SalesHistoryScreenState extends State<SalesHistoryScreen> {
                   ],
                 ),
                 CustomText(
-                  text: "Rs. ${sale["totalAmount"]}",
+                  text: "Rs. ${sale.total}",
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.green,
